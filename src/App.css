@@ -1,8 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans&display=swap");
 #root {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
+  width: 100%;
 }
 
 .logo {
@@ -39,4 +39,9 @@
 
 .read-the-docs {
   color: #888;
+}
+
+.app {
+  height: 100vh;
+  width: 100%;
 }

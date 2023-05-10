@@ -1,13 +1,14 @@
 import { Button } from "@chakra-ui/react";
+import MainLayout from "../../common/layout/MainLayout";
 
 function HomePage() {
   return (
-    <div>
+    <MainLayout>
       HomePage
       <div>
         <Button colorScheme="blue">Home</Button>
       </div>
-    </div>
+    </MainLayout>
   );
 }
 
