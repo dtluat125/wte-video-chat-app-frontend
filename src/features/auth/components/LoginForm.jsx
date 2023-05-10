@@ -14,17 +14,17 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import { Regex } from "../../../common/constants";
+import { loginUser } from "../auth.actions";
 import { Logo } from "./Logo";
 import { PasswordField } from "./PasswordField";
-import { loginUser } from "../auth.actions";
-import { useEffect } from "react";
-import { useHistory } from "react-router-dom/cjs/react-router-dom";
 
 export default function LoginForm() {
-  const { loading, userInfo, success, error } = useSelector(
+  const { loading, success, error, userToken } = useSelector(
     (state) => state.auth
   );
   const {
@@ -35,12 +35,6 @@ export default function LoginForm() {
   const dispatch = useDispatch();
 
   const history = useHistory();
-  useEffect(() => {
-    // redirect user to login page if registration was successful
-    if (success) history.replace("/");
-    // redirect authenticated user to profile screen
-    // if (userInfo) history.replace("/user-profile");
-  }, [history, userInfo, success]);
 
   const submitForm = (data) => {
     console.log(data);
@@ -50,12 +44,16 @@ export default function LoginForm() {
   const toast = useToast();
 
   useEffect(() => {
-    console.log(success);
-    if (!loading && success) {
+    if (!loading && success && userToken) {
+      history.replace("/");
       toast({
         status: "success",
         description: "Logged in successfully",
       });
+      console.log(userToken);
+      if (userToken) {
+        localStorage.setItem("jwt", userToken);
+      }
     } else if (!loading && error) {
       toast({
         status: "error",

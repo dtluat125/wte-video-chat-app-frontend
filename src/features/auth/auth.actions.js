@@ -45,12 +45,31 @@ export const loginUser = createAsyncThunk(
         { name, email, password, passwordConfirm },
         config
       );
-      console.log(response);
       if (response.success) {
-        console.log("fullfilled");
         return response;
       }
       return rejectWithValue(response.message);
+    } catch (error) {
+      // return custom error message from backend if present
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
+export const validateUser = createAsyncThunk(
+  "auth/me",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("users/me");
+      console.log("response");
+      if (response.status !== "success") {
+        return rejectWithValue(response.message);
+      }
+      return response;
     } catch (error) {
       // return custom error message from backend if present
       if (error.response && error.response.data.message) {

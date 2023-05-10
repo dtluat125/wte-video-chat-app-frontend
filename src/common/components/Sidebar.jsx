@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   CloseButton,
   Drawer,
   DrawerContent,
@@ -21,6 +22,9 @@ import {
 } from "react-icons/fi";
 import { AiOutlineMessage } from "react-icons/ai";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { logOut } from "../../features/auth/auth.reducer";
+import { useHistory } from "react-router-dom";
 
 const LinkItems = [
   { name: "Messages", icon: AiOutlineMessage },
@@ -56,7 +60,7 @@ export default function Sidebar({ children }) {
         size="full"
       >
         <DrawerContent>
-          <SidebarContent onClose={onClose} />
+          <SidebarContent onClose={onClose} navSize={NavSize.LARGE} />
         </DrawerContent>
       </Drawer>
       {/* mobilenav */}
@@ -74,6 +78,13 @@ export default function Sidebar({ children }) {
 const SidebarContent = ({ onClose, setNavSize, navSize, ...rest }) => {
   const changeNavSize = (size) => {
     setNavSize(size);
+  };
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const handleSignout = () => {
+    localStorage.clear();
+    history.replace("/login");
+    dispatch(logOut());
   };
   return (
     <Box
@@ -107,7 +118,7 @@ const SidebarContent = ({ onClose, setNavSize, navSize, ...rest }) => {
             if (navSize == NavSize.SMALL) changeNavSize(NavSize.LARGE);
             else changeNavSize(NavSize.SMALL);
           }}
-          variant='ghost'
+          variant="ghost"
         />
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
       </Flex>
@@ -116,6 +127,9 @@ const SidebarContent = ({ onClose, setNavSize, navSize, ...rest }) => {
           {link.name}
         </NavItem>
       ))}
+      <Button variant="ghost" onClick={handleSignout}>
+        Sign out
+      </Button>
     </Box>
   );
 };

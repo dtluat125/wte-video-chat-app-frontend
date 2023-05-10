@@ -12,10 +12,13 @@ const options = {
 const axiosInstance = axios.create(options);
 
 axiosInstance.interceptors.request.use(async (config) => {
+  const token = localStorage.getItem("jwt");
+  console.log(token);
   Object.assign(config, {
     headers: {
       ...config.headers,
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
   });
   return config;
