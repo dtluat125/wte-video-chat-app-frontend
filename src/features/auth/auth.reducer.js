@@ -7,6 +7,9 @@ const initialState = {
   userToken: null, // for storing the JWT
   error: null,
   success: false, // for monitoring the registration process.
+  validateLoading: false,
+  validateSuccess: false,
+  validateError: null,
 };
 
 const authSlice = createSlice({
@@ -16,6 +19,20 @@ const authSlice = createSlice({
     logOut(state) {
       state.userInfo = null;
       state.userToken = null;
+      state.error = null;
+      state.success = false;
+      state.validateSuccess = false;
+      state.validateError = null;
+      state.validateLoading = false;
+    },
+    clearState(state) {
+      state.userInfo = null;
+      state.userToken = null;
+      state.error = null;
+      state.success = false;
+      state.validateSuccess = false;
+      state.validateError = null;
+      state.validateLoading = false;
     },
   },
   extraReducers: {
@@ -37,11 +54,13 @@ const authSlice = createSlice({
 
     // Login user
     [loginUser.pending]: (state) => {
+      state.validateSuccess = false;
+      state.validateError = null;
+      state.validateLoading = false;
       state.loading = true;
       state.error = null;
     },
     [loginUser.fulfilled]: (state, { payload }) => {
-      console.log(payload);
       state.loading = false;
       state.success = true; // registration successful
       state.userInfo = payload.data.user;
@@ -54,22 +73,21 @@ const authSlice = createSlice({
 
     // Validate user
     [validateUser.pending]: (state) => {
-      state.loading = true;
-      state.error = null;
+      state.validateLoading = true;
+      state.validateError = null;
     },
     [validateUser.fulfilled]: (state, { payload }) => {
-      console.log(payload);
-      state.loading = false;
-      state.success = true; // registration successful
+      state.validateLoading = false;
+      state.validateSuccess = true; // registration successful
       state.userInfo = payload.data.data;
     },
     [validateUser.rejected]: (state, { payload }) => {
-      state.loading = false;
-      state.error = payload;
+      state.validateLoading = false;
+      state.validateError = payload;
     },
   },
 });
 
-export const { logOut } = authSlice.actions;
+export const { logOut, clearState } = authSlice.actions;
 
 export default authSlice.reducer;

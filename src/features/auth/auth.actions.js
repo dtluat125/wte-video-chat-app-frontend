@@ -65,7 +65,6 @@ export const validateUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get("users/me");
-      console.log("response");
       if (response.status !== "success") {
         return rejectWithValue(response.message);
       }

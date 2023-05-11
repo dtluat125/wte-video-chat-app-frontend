@@ -45,7 +45,6 @@ export default function SignupForm() {
   }, [history, userInfo, success]);
   const dispatch = useDispatch();
   const submitForm = (data) => {
-    console.log(data);
     dispatch(registerUser(data));
   };
 

@@ -37,7 +37,6 @@ export default function LoginForm() {
   const history = useHistory();
 
   const submitForm = (data) => {
-    console.log(data);
     dispatch(loginUser(data));
   };
 
@@ -50,7 +49,6 @@ export default function LoginForm() {
         status: "success",
         description: "Logged in successfully",
       });
-      console.log(userToken);
       if (userToken) {
         localStorage.setItem("jwt", userToken);
       }
