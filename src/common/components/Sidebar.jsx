@@ -1,30 +1,38 @@
 import {
+  Avatar,
   Box,
-  Button,
   CloseButton,
   Drawer,
   DrawerContent,
   Flex,
+  HStack,
   Icon,
   IconButton,
   Link,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Text,
   Tooltip,
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useState } from "react";
+import { AiOutlineLogout, AiOutlineMessage } from "react-icons/ai";
 import {
+  FiChevronDown,
   FiCompass,
   FiMenu,
   FiSettings,
   FiStar,
   FiTrendingUp,
 } from "react-icons/fi";
-import { AiOutlineMessage } from "react-icons/ai";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { logOut } from "../../features/auth/auth.reducer";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { logOut } from "../../features/auth/auth.reducer";
+import { BASE_URL } from "../constants";
+import { useMediaQuery } from "@chakra-ui/react";
 
 const LinkItems = [
   { name: "Messages", icon: AiOutlineMessage },
@@ -40,8 +48,10 @@ export const NavSize = {
 };
 
 export default function Sidebar({ children }) {
-  const [navSize, setNavSize] = useState(NavSize.LARGE);
+  const [navSize, setNavSize] = useState(NavSize.SMALL);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [isSmallerThanMD] = useMediaQuery("(max-width: 768px)");
   return (
     <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
       <SidebarContent
@@ -60,7 +70,11 @@ export default function Sidebar({ children }) {
         size="full"
       >
         <DrawerContent>
-          <SidebarContent onClose={onClose} navSize={NavSize.LARGE} />
+          <SidebarContent
+            onClose={onClose}
+            isMoblie={isSmallerThanMD}
+            navSize={NavSize.LARGE}
+          />
         </DrawerContent>
       </Drawer>
       {/* mobilenav */}
@@ -75,7 +89,13 @@ export default function Sidebar({ children }) {
   );
 }
 
-const SidebarContent = ({ onClose, setNavSize, navSize, ...rest }) => {
+const SidebarContent = ({
+  onClose,
+  setNavSize,
+  navSize,
+  isMoblie,
+  ...rest
+}) => {
   const changeNavSize = (size) => {
     setNavSize(size);
   };
@@ -86,6 +106,7 @@ const SidebarContent = ({ onClose, setNavSize, navSize, ...rest }) => {
     history.replace("/login");
     dispatch(logOut());
   };
+  const { userInfo } = useSelector((state) => state.auth);
   return (
     <Box
       bg={useColorModeValue("white", "gray.900")}
@@ -96,40 +117,92 @@ const SidebarContent = ({ onClose, setNavSize, navSize, ...rest }) => {
       h="full"
       {...rest}
     >
-      <Flex
-        h="20"
-        alignItems="center"
-        mx={navSize === NavSize.SMALL ? "2" : "8"}
-        mr="2"
-        justifyContent="space-between"
-      >
-        <Text
-          fontSize="2xl"
-          fontFamily="monospace"
-          fontWeight="bold"
-          display={navSize === NavSize.SMALL ? "none" : "block"}
+      <Flex h="full" direction="column" justifyContent="space-between">
+        <Box>
+          <Flex
+            h="20"
+            alignItems="center"
+            mx={navSize === NavSize.SMALL ? "2" : "8"}
+            mr="2"
+            justifyContent="space-between"
+          >
+            <Text
+              fontSize="2xl"
+              fontFamily="monospace"
+              fontWeight="bold"
+              display={navSize === NavSize.SMALL ? "none" : "block"}
+            >
+              Logo
+            </Text>
+            {!isMoblie && (
+              <IconButton
+                width={navSize === NavSize.SMALL ? "full" : "auto"}
+                icon={<FiMenu />}
+                onClick={() => {
+                  if (navSize == NavSize.SMALL) changeNavSize(NavSize.LARGE);
+                  else changeNavSize(NavSize.SMALL);
+                }}
+                variant="ghost"
+              />
+            )}
+            <CloseButton
+              display={{ base: "flex", md: "none" }}
+              onClick={onClose}
+            />
+          </Flex>
+          {LinkItems.map((link) => (
+            <NavItem key={link.name} icon={link.icon} navSize={navSize}>
+              {link.name}
+            </NavItem>
+          ))}
+          <NavItem
+            key={"signout"}
+            icon={AiOutlineLogout}
+            navSize={navSize}
+            onClick={handleSignout}
+          >
+            Sign out
+          </NavItem>
+        </Box>
+        <Flex
+          h="20"
+          w="full"
+          align="center"
+          justify={navSize === NavSize.LARGE ? "start" : "center"}
+          mx={navSize === NavSize.LARGE ? 8 : 0}
         >
-          Logo
-        </Text>
-        <IconButton
-          width={navSize === NavSize.SMALL ? "full" : "auto"}
-          icon={<FiMenu />}
-          onClick={() => {
-            if (navSize == NavSize.SMALL) changeNavSize(NavSize.LARGE);
-            else changeNavSize(NavSize.SMALL);
-          }}
-          variant="ghost"
-        />
-        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
+          <Menu>
+            {userInfo && (
+              <MenuButton>
+                <HStack>
+                  <Avatar
+                    name={userInfo?.name}
+                    src={`${BASE_URL}/${userInfo?.photo}`}
+                    size="sm"
+                  />
+                  {navSize === NavSize.LARGE && (
+                    <HStack>
+                      <Text fontSize="sm">{userInfo?.name}</Text>
+                      <Box display={{ base: "none", md: "flex" }}>
+                        <FiChevronDown />
+                      </Box>
+                    </HStack>
+                  )}
+                </HStack>
+              </MenuButton>
+            )}
+            <MenuList
+              bg={useColorModeValue("white", "gray.900")}
+              borderColor={useColorModeValue("gray.200", "gray.700")}
+            >
+              <MenuItem onClick={handleSignout}>
+                <Icon mr={"4"} fontSize="16" as={AiOutlineLogout} />
+                Sign out
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </Flex>
       </Flex>
-      {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon} navSize={navSize}>
-          {link.name}
-        </NavItem>
-      ))}
-      <Button variant="ghost" onClick={handleSignout}>
-        Sign out
-      </Button>
     </Box>
   );
 };

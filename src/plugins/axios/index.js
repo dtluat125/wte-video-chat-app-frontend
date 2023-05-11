@@ -13,7 +13,6 @@ const axiosInstance = axios.create(options);
 
 axiosInstance.interceptors.request.use(async (config) => {
   const token = localStorage.getItem("jwt");
-  console.log(token);
   Object.assign(config, {
     headers: {
       ...config.headers,
