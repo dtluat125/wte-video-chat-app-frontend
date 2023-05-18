@@ -17,28 +17,18 @@ import {
   Tooltip,
   useColorModeValue,
   useDisclosure,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { AiOutlineLogout, AiOutlineMessage } from "react-icons/ai";
-import {
-  FiChevronDown,
-  FiCompass,
-  FiMenu,
-  FiSettings,
-  FiStar,
-  FiTrendingUp,
-} from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiSettings } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { logOut } from "../../features/auth/auth.reducer";
 import { BASE_URL } from "../constants";
-import { useMediaQuery } from "@chakra-ui/react";
 
 const LinkItems = [
   { name: "Messages", icon: AiOutlineMessage },
-  { name: "Trending", icon: FiTrendingUp },
-  { name: "Explore", icon: FiCompass },
-  { name: "Favourites", icon: FiStar },
   { name: "Settings", icon: FiSettings },
 ];
 
@@ -79,10 +69,7 @@ export default function Sidebar({ children }) {
       </Drawer>
       {/* mobilenav */}
       <MobileNav display={{ base: "flex", md: "none" }} onOpen={onOpen} />
-      <Box
-        ml={{ base: 0, md: navSize === NavSize.LARGE ? "240px" : "60px" }}
-        p="4"
-      >
+      <Box ml={{ base: 0, md: navSize === NavSize.LARGE ? "240px" : "60px" }}>
         {children}
       </Box>
     </Box>
@@ -155,14 +142,6 @@ const SidebarContent = ({
               {link.name}
             </NavItem>
           ))}
-          <NavItem
-            key={"signout"}
-            icon={AiOutlineLogout}
-            navSize={navSize}
-            onClick={handleSignout}
-          >
-            Sign out
-          </NavItem>
         </Box>
         <Flex
           h="20"
