@@ -11,8 +11,20 @@ import {
 import { AiOutlinePhone, AiOutlineVideoCamera } from "react-icons/ai";
 
 import { CiCircleMore } from "react-icons/ci";
+import { useSelector } from "react-redux";
+import { useMemo } from "react";
 
 function ChatBoxHeader() {
+  const chat = useSelector((state) => state.chat.activeConversation);
+
+  const userInfo = useSelector((state) => state.auth.userInfo);
+
+  const chatName = useMemo(() => {
+    if (!chat || !userInfo) return "";
+    if (chat.isGroupChat) return chat.chatName;
+    const partner = chat.users?.find((user) => user.email !== userInfo.email);
+    return partner?.name || userInfo.name;
+  }, [chat, userInfo]);
   return (
     <Box w="full">
       <HStack p="4" h="80px" bg="white" w="full" spacing={8}>
@@ -20,24 +32,27 @@ function ChatBoxHeader() {
           <Avatar name="" />
           <VStack align="start" flex={1} spacing={1}>
             <Text fontSize="xl" colorScheme="black" fontWeight={600}>
-              Odama Studio
+              {chatName}
             </Text>
             <Text fontSize="sm" color="gray"></Text>
           </VStack>
         </HStack>
-        <AvatarGroup
-          display={{ base: "none", sm: "flex" }}
-          size="sm"
-          max={3}
-          spacing={-3}
-          fontSize="2xs"
-        >
-          <Avatar name="Ryan Florence" src="https://bit.ly/ryan-florence" />
-          <Avatar name="Segun Adebayo" src="https://bit.ly/sage-adebayo" />
-          <Avatar name="Kent Dodds" src="https://bit.ly/kent-c-dodds" />
-          <Avatar name="Prosper Otemuyiwa" src="https://bit.ly/prosper-baba" />
-          <Avatar name="Christian Nwamba" src="https://bit.ly/code-beast" />
-        </AvatarGroup>
+        {chat.isGroupChat && (
+          <AvatarGroup
+            display={{ base: "none", sm: "flex" }}
+            size="sm"
+            max={3}
+            spacing={-3}
+            fontSize="2xs"
+          >
+            {chat?.users?.map(
+              (user) =>
+                user && (
+                  <Avatar key={user.id} name={user.name} src={user.photo} />
+                )
+            )}
+          </AvatarGroup>
+        )}
         <HStack spacing={1}>
           <IconButton
             color="gray"

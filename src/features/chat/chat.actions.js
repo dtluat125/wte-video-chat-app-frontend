@@ -41,7 +41,35 @@ export const getUsers = createAsyncThunk(
   }
 );
 
-// export const accessConversation = createAsyncThunk(
-//   "chat/accessConversation",
-//   async (_, { rejectWithValue }) => {}
-// );
+export const getChat = createAsyncThunk(
+  "chat/getChat",
+  async ({ chatId }, { rejectWithValue }) => {
+    const response = await axiosInstance.get(`message/${chatId}`);
+    if (!response.success) {
+      return rejectWithValue(response.message);
+    }
+    return response;
+  }
+);
+
+export const sendMessage = createAsyncThunk(
+  "chat/sendMessage",
+  async ({ chatId, content }, { rejectWithValue }) => {
+    const response = await axiosInstance.post(`message/`, { chatId, content });
+    if (!response.success) {
+      return rejectWithValue(response.message);
+    }
+    return response;
+  }
+);
+
+export const accessChat = createAsyncThunk(
+  "chat/accessChat",
+  async ({ userId }, { rejectWithValue }) => {
+    const response = await axiosInstance.post(`chat/`, { userId });
+    if (!response.success) {
+      return rejectWithValue(response.message);
+    }
+    return response;
+  }
+);

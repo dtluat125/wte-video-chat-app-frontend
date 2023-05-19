@@ -1,4 +1,4 @@
-import { Button, IconButton } from "@chakra-ui/button";
+import { IconButton } from "@chakra-ui/button";
 import { useDisclosure } from "@chakra-ui/hooks";
 import { Input } from "@chakra-ui/input";
 import { Box } from "@chakra-ui/layout";
@@ -10,23 +10,24 @@ import {
   DrawerOverlay,
 } from "@chakra-ui/modal";
 import { Spinner } from "@chakra-ui/spinner";
-import { useToast } from "@chakra-ui/toast";
 import { Tooltip } from "@chakra-ui/tooltip";
-import axios from "axios";
-import { useMemo, useState } from "react";
-import { RiSearch2Line } from "react-icons/ri";
-import ChatLoading from "./ChatLoading";
-import { useDispatch, useSelector } from "react-redux";
-import { getUsers } from "../chat.actions";
 import { debounce } from "lodash";
+import { useState, useEffect } from "react";
+import { RiSearch2Line } from "react-icons/ri";
+import { useDispatch, useSelector } from "react-redux";
+import { accessChat, getChat, getUsers } from "../chat.actions";
+import ChatLoading from "./ChatLoading";
+import UserListItem from "./User/UserListItem";
 
 function SideDrawer() {
-  const { usersLoading, searchUsers } = useSelector((state) => state.chat);
-  const [loadingChat, setLoadingChat] = useState(false);
+  const {
+    usersLoading,
+    searchUsers,
+    accessChatLoading,
+    accessChatError,
+    accessChatResponse,
+  } = useSelector((state) => state.chat);
 
-  let setSelectedChat, user, chats, setChats;
-
-  const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const dispatch = useDispatch();
@@ -35,35 +36,15 @@ function SideDrawer() {
     dispatch(getUsers({ search: value.trim() }));
   };
 
-  const accessChat = async (userId) => {
-    console.log(userId);
-
-    try {
-      setLoadingChat(true);
-      const config = {
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
-      const { data } = await axios.post(`/api/chat`, { userId }, config);
-
-      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
-      setSelectedChat(data);
-      setLoadingChat(false);
-      onClose();
-    } catch (error) {
-      toast({
-        title: "Error fetching the chat",
-        description: error.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom-left",
-      });
-    }
+  const handleAccessChat = (value) => {
+    dispatch(accessChat({ userId: value }));
   };
 
+  useEffect(() => {
+    if (!accessChatLoading && !accessChatError && accessChatResponse) {
+      dispatch(getChat({ chatId: accessChatResponse._id }));
+    }
+  }, [accessChatLoading, accessChatError, accessChatResponse, dispatch]);
   const debouncedResults = debounce(handleSearch, 300);
 
   return (
@@ -95,16 +76,19 @@ function SideDrawer() {
                 mr={2}
                 onChange={(e) => debouncedResults(e.target.value)}
               />
-              <Button onClick={handleSearch}>Go</Button>
             </Box>
             {usersLoading ? (
               <ChatLoading />
             ) : (
-              searchUsers?.map((user, index) => (
-                <div key={index}>{user.name}</div>
+              searchUsers?.map((user) => (
+                <UserListItem
+                  key={user._id}
+                  user={user}
+                  handleFunction={() => handleAccessChat(user._id)}
+                />
               ))
             )}
-            {loadingChat && <Spinner ml="auto" d="flex" />}
+            {accessChatLoading && <Spinner ml="auto" d="flex" />}
           </DrawerBody>
         </DrawerContent>
       </Drawer>

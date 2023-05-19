@@ -21,7 +21,7 @@ function ChatSideBar() {
       ) : (
         <VStack w="full">
           {conversations?.map((chat) => {
-            return <ChatCard key={chat.id} chat={chat} />;
+            return <ChatCard key={chat._id} chat={chat} />;
           })}
         </VStack>
       )}

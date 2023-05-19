@@ -1,7 +1,9 @@
 import { Avatar, AvatarBadge, HStack, Text, VStack } from "@chakra-ui/react";
 import moment from "moment";
 import { useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setActiveConversation } from "../../chat.reducer";
+import { getChat } from "../../chat.actions";
 
 function ChatCard({ chat }) {
   const updatedTime = useMemo(() => {
@@ -16,12 +18,22 @@ function ChatCard({ chat }) {
     }
   }, [chat]);
   const userInfo = useSelector((state) => state.auth.userInfo);
+  const activeConversation = useSelector(
+    (state) => state.chat.activeConversation
+  );
   const chatName = useMemo(() => {
     if (!chat || !userInfo) return "";
     if (chat.isGroupChat) return chat.chatName;
     const partner = chat.users.find((user) => user.email !== userInfo.email);
     return partner?.name || userInfo.name;
   }, [chat, userInfo]);
+  const active = () => activeConversation?._id === chat?._id;
+  const dispatch = useDispatch();
+  const handleClickChatCard = () => {
+    if (active()) return;
+    dispatch(setActiveConversation(chat));
+    dispatch(getChat({ chatId: chat._id }));
+  };
   return (
     <HStack
       w="full"
@@ -30,8 +42,10 @@ function ChatCard({ chat }) {
       gap={2}
       cursor="pointer"
       _hover={{ bg: "gray.50" }}
+      bg={active() ? "gray.50" : ""}
+      onClick={handleClickChatCard}
     >
-      <Avatar size="md" src={chat.image} name={chat.users?.[0]?.name}>
+      <Avatar size="md" src={chat.image} name={chatName}>
         <AvatarBadge boxSize="1em" bg="green.500" />
       </Avatar>
       <HStack flex={1}>
@@ -40,7 +54,7 @@ function ChatCard({ chat }) {
             {chatName}
           </Text>
           <Text fontSize="sm" color="gray">
-            {chat.latestMessage}
+            {chat.latestMessage?.content || "Send your first message"}
           </Text>
         </VStack>
         <VStack spacing={1}>
