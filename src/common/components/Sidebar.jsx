@@ -17,29 +17,19 @@ import {
   Tooltip,
   useColorModeValue,
   useDisclosure,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { AiOutlineLogout, AiOutlineMessage } from "react-icons/ai";
-import {
-  FiChevronDown,
-  FiCompass,
-  FiMenu,
-  FiSettings,
-  FiStar,
-  FiTrendingUp,
-} from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiSettings } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { logOut } from "../../features/auth/auth.reducer";
-import { BASE_URL } from "../constants";
-import { useMediaQuery } from "@chakra-ui/react";
+import { BASE_URL, PageRoute } from "../constants";
 
 const LinkItems = [
-  { name: "Messages", icon: AiOutlineMessage },
-  { name: "Trending", icon: FiTrendingUp },
-  { name: "Explore", icon: FiCompass },
-  { name: "Favourites", icon: FiStar },
-  { name: "Settings", icon: FiSettings },
+  { name: "Messages", icon: AiOutlineMessage, to: PageRoute.CHAT_PAGE },
+  { name: "Settings", icon: FiSettings, to: PageRoute.HOME_PAGE },
 ];
 
 export const NavSize = {
@@ -79,10 +69,7 @@ export default function Sidebar({ children }) {
       </Drawer>
       {/* mobilenav */}
       <MobileNav display={{ base: "flex", md: "none" }} onOpen={onOpen} />
-      <Box
-        ml={{ base: 0, md: navSize === NavSize.LARGE ? "240px" : "60px" }}
-        p="4"
-      >
+      <Box ml={{ base: 0, md: navSize === NavSize.LARGE ? "240px" : "60px" }}>
         {children}
       </Box>
     </Box>
@@ -151,18 +138,15 @@ const SidebarContent = ({
             />
           </Flex>
           {LinkItems.map((link) => (
-            <NavItem key={link.name} icon={link.icon} navSize={navSize}>
+            <NavItem
+              key={link.name}
+              icon={link.icon}
+              navSize={navSize}
+              to={link.to}
+            >
               {link.name}
             </NavItem>
           ))}
-          <NavItem
-            key={"signout"}
-            icon={AiOutlineLogout}
-            navSize={navSize}
-            onClick={handleSignout}
-          >
-            Sign out
-          </NavItem>
         </Box>
         <Flex
           h="20"
@@ -207,11 +191,11 @@ const SidebarContent = ({
   );
 };
 
-const NavItem = ({ icon, children, navSize, ...rest }) => {
+const NavItem = ({ icon, children, navSize, to, ...rest }) => {
   return (
     <Tooltip label={navSize === NavSize.SMALL && children} placement="right">
       <Link
-        href="#"
+        href={to}
         style={{ textDecoration: "none" }}
         _focus={{ boxShadow: "none" }}
       >

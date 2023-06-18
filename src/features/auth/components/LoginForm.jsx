@@ -18,7 +18,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
-import { Regex } from "../../../common/constants";
+import { PageRoute, Regex } from "../../../common/constants";
 import { loginUser } from "../auth.actions";
 import { Logo } from "./Logo";
 import { PasswordField } from "./PasswordField";
@@ -44,7 +44,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (!loading && success && userToken) {
-      history.replace("/");
+      history.replace(PageRoute.CHAT_PAGE);
       toast({
         status: "success",
         description: "Logged in successfully",

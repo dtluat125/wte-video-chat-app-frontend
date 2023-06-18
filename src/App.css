@@ -47,3 +47,11 @@
   height: auto;
   background-color: var(--chakra-colors-gray-50);
 }
+
+.w-full {
+  width: 100%;
+}
+
+.p-4 {
+  padding: 16px;
+}
