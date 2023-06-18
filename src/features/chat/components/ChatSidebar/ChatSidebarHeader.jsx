@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { RiQuillPenLine } from "react-icons/ri";
 import SideDrawer from "../SideDrawer";
+import GroupChatModal from "../Modal/GroupChatModal";
 
 function ChatSidebarHeader() {
   return (
@@ -17,9 +18,11 @@ function ChatSidebarHeader() {
           Messages
         </Text>
         <HStack>
-          <Tooltip label="Create new Chat">
-            <IconButton icon={<RiQuillPenLine />} rounded="full"></IconButton>
-          </Tooltip>
+          <GroupChatModal>
+            <Tooltip label="Create new Chat">
+              <IconButton icon={<RiQuillPenLine />} rounded="full"></IconButton>
+            </Tooltip>
+          </GroupChatModal>
 
           <SideDrawer />
         </HStack>

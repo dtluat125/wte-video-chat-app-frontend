@@ -73,3 +73,39 @@ export const accessChat = createAsyncThunk(
     return response;
   }
 );
+
+export const createGroupChat = createAsyncThunk(
+  "chat/createGroupChat",
+  async ({ name, users }, { rejectWithValue }) => {
+    const response = await axiosInstance.post(`chat/group`, { name, users });
+    if (!response.success) {
+      return rejectWithValue(response.message);
+    }
+    return response;
+  }
+);
+
+export const renameGroupChat = createAsyncThunk(
+  "chat/renameGroupChat",
+  async ({ chatId, chatName }, { rejectWithValue }) => {
+    const response = await axiosInstance.put(`chat/rename`, {
+      chatId,
+      chatName,
+    });
+    if (!response.success) {
+      return rejectWithValue(response.message);
+    }
+    return response;
+  }
+);
+
+export const addMembersToGroup = createAsyncThunk(
+  "chat/addToGroup",
+  async ({ chatId, userIds }, { rejectWithValue }) => {
+    const response = await axiosInstance.put(`chat/groupadd`, { chatId, userIds });
+    if (!response.success) {
+      return rejectWithValue(response.message);
+    }
+    return response;
+  }
+);

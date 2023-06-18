@@ -10,9 +10,9 @@ import {
 } from "@chakra-ui/react";
 import { AiOutlinePhone, AiOutlineVideoCamera } from "react-icons/ai";
 
-import { CiCircleMore } from "react-icons/ci";
 import { useSelector } from "react-redux";
 import { useMemo } from "react";
+import ChatBoxMenu from "./ChatBoxMenu";
 
 function ChatBoxHeader() {
   const chat = useSelector((state) => state.chat.activeConversation);
@@ -46,9 +46,9 @@ function ChatBoxHeader() {
             fontSize="2xs"
           >
             {chat?.users?.map(
-              (user) =>
+              (user, index) =>
                 user && (
-                  <Avatar key={user.id} name={user.name} src={user.photo} />
+                  <Avatar key={user._id || index} name={user.name} src={user.photo} />
                 )
             )}
           </AvatarGroup>
@@ -66,12 +66,7 @@ function ChatBoxHeader() {
             rounded="full"
             variant="ghost"
           ></IconButton>
-          <IconButton
-            color="gray"
-            icon={<CiCircleMore />}
-            rounded="full"
-            variant="ghost"
-          ></IconButton>
+          <ChatBoxMenu />
         </HStack>
       </HStack>
       <Divider />

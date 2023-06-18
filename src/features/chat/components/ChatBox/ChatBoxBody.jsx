@@ -11,21 +11,20 @@ function ChatBoxBody() {
   const bg = useColorModeValue("gray.100", "gray.900");
 
   return !messagesLoading ? (
-    <ScrollableFeed className="w-full">
-      <VStack
-        bg={bg}
-        flex={1}
-        w="full"
-        h='full'
-        p={4}
-        style={{ maxHeight: "calc(100vh-152px)" }}
-        overflowY="auto"
-      >
+    <VStack
+      bg={bg}
+      flex={1}
+      w="full"
+      h="full"
+      style={{ maxHeight: "calc(100vh-152px)" }}
+      overflowY="auto"
+    >
+      <ScrollableFeed className="w-full p-4">
         {messages?.map((message) => (
           <Message key={message._id} message={message} />
         ))}
-      </VStack>
-    </ScrollableFeed>
+      </ScrollableFeed>
+    </VStack>
   ) : (
     <Box w="full" h="full" flex justifyContent="center" alignItems="center">
       <Spinner />

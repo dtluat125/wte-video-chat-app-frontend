@@ -1,4 +1,4 @@
-import { Text, VStack, useToast } from "@chakra-ui/react";
+import { Spinner, Text, VStack, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import socketService from "../../../../plugins/socket";
@@ -8,9 +8,8 @@ import ChatBoxHeader from "./ChatBoxHeader";
 import ChatInput from "./ChatInput";
 
 function ChatBox() {
-  const { messages, messagesLoading, activeConversation } = useSelector(
-    (state) => state.chat
-  );
+  const { messages, messagesLoading, activeConversation, accessChatLoading } =
+    useSelector((state) => state.chat);
   const dispatch = useDispatch();
   const toast = useToast();
 
@@ -64,6 +63,8 @@ function ChatBox() {
       <ChatBoxBody />
       <ChatInput chatId={activeConversation._id} />
     </VStack>
+  ) : accessChatLoading ? (
+    <Spinner />
   ) : (
     <Text fontSize="2xl" p={4}>
       Select a chat

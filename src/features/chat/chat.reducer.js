@@ -1,9 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   accessChat,
+  addMembersToGroup,
+  createGroupChat,
   getChat,
   getConversations,
   getUsers,
+  renameGroupChat,
   sendMessage,
 } from "./chat.actions";
 import socketService from "../../plugins/socket";
@@ -32,6 +35,16 @@ const initialState = {
   accessChatLoading: false,
   accessChatError: null,
   accessChatResponse: null,
+  createGroupChatLoading: false,
+  createGroupChatError: null,
+  createGroupChatResponse: null,
+  renameGroupChatLoading: false,
+  renameGroupChatError: null,
+  renameGroupChatResponse: null,
+
+  addMembersToGroupLoading: false,
+  addMembersToGroupError: null,
+  addMembersToGroupResponse: null,
 };
 
 const chatSlice = createSlice({
@@ -47,6 +60,10 @@ const chatSlice = createSlice({
     },
     addMessage: (state, action) => {
       state.messages.push(action.payload);
+    },
+
+    clearSearch: (state) => {
+      state.searchUsers = [];
     },
   },
   extraReducers: (builder) => {
@@ -119,17 +136,68 @@ const chatSlice = createSlice({
     builder.addCase(accessChat.fulfilled, (state, action) => {
       state.activeConversation = action.payload?.data?.data;
       state.accessChatResponse = action.payload?.data?.data;
-      state.conversations.unshift(action.payload?.data?.data);
+      if (
+        !state.conversations?.find(
+          (conversation) => conversation._id === state.activeConversation._id
+        )
+      )
+        state.conversations.unshift(action.payload?.data?.data);
       state.accessChatLoading = false;
     });
     builder.addCase(accessChat.rejected, (state, action) => {
       state.accessChatLoading = false;
       state.accessChatError = action.payload || "Something went wrong";
     });
+    builder.addCase(createGroupChat.pending, (state) => {
+      state.createGroupChatError = null;
+      state.createGroupChatLoading = true;
+      state.activeConversation = null;
+      state.createGroupChatResponse = null;
+    });
+    builder.addCase(createGroupChat.fulfilled, (state, action) => {
+      state.activeConversation = action.payload?.data;
+      state.createGroupChatResponse = action.payload?.data;
+      state.conversations.unshift(action.payload?.data);
+      state.createGroupChatLoading = false;
+    });
+    builder.addCase(createGroupChat.rejected, (state, action) => {
+      state.createGroupChatLoading = false;
+      state.createGroupChatError = action.payload || "Something went wrong";
+    });
+    // Rename
+    builder.addCase(renameGroupChat.pending, (state) => {
+      state.renameGroupChatError = null;
+      state.renameGroupChatLoading = true;
+      state.renameGroupChatResponse = null;
+    });
+    builder.addCase(renameGroupChat.fulfilled, (state, action) => {
+      state.activeConversation = action.payload?.data;
+      state.renameGroupChatResponse = action.payload?.data;
+      state.renameGroupChatLoading = false;
+    });
+    builder.addCase(renameGroupChat.rejected, (state, action) => {
+      state.renameGroupChatLoading = false;
+      state.renameGroupChatError = action.payload || "Something went wrong";
+    });
+    // Add member
+    builder.addCase(addMembersToGroup.pending, (state) => {
+      state.addMembersToGroupError = null;
+      state.addMembersToGroupLoading = true;
+      state.addMembersToGroupResponse = null;
+    });
+    builder.addCase(addMembersToGroup.fulfilled, (state, action) => {
+      state.activeConversation = action.payload?.data;
+      state.addMembersToGroupResponse = action.payload?.data;
+      state.addMembersToGroupLoading = false;
+    });
+    builder.addCase(addMembersToGroup.rejected, (state, action) => {
+      state.addMembersToGroupLoading = false;
+      state.addMembersToGroupError = action.payload || "Something went wrong";
+    });
   },
 });
 
-export const { setActiveConversation, setMessages, addMessage } =
+export const { setActiveConversation, setMessages, addMessage, clearSearch } =
   chatSlice.actions;
 
 export default chatSlice.reducer;

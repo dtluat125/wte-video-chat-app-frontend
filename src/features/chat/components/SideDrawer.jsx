@@ -3,19 +3,20 @@ import { useDisclosure } from "@chakra-ui/hooks";
 import { Input } from "@chakra-ui/input";
 import { Box } from "@chakra-ui/layout";
 import {
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
+Drawer,
+DrawerBody,
+DrawerContent,
+DrawerHeader,
+DrawerOverlay,
 } from "@chakra-ui/modal";
 import { Spinner } from "@chakra-ui/spinner";
 import { Tooltip } from "@chakra-ui/tooltip";
 import { debounce } from "lodash";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { RiSearch2Line } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { accessChat, getChat, getUsers } from "../chat.actions";
+import { clearSearch } from "../chat.reducer";
 import ChatLoading from "./ChatLoading";
 import UserListItem from "./User/UserListItem";
 
@@ -65,7 +66,14 @@ function SideDrawer() {
         </Tooltip>
       </Box>
 
-      <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
+      <Drawer
+        placement="left"
+        onClose={() => {
+          dispatch(clearSearch());
+          onClose();
+        }}
+        isOpen={isOpen}
+      >
         <DrawerOverlay />
         <DrawerContent>
           <DrawerHeader borderBottomWidth="1px">Search Users</DrawerHeader>

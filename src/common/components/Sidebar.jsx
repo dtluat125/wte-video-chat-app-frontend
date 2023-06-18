@@ -25,11 +25,11 @@ import { FiChevronDown, FiMenu, FiSettings } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { logOut } from "../../features/auth/auth.reducer";
-import { BASE_URL } from "../constants";
+import { BASE_URL, PageRoute } from "../constants";
 
 const LinkItems = [
-  { name: "Messages", icon: AiOutlineMessage },
-  { name: "Settings", icon: FiSettings },
+  { name: "Messages", icon: AiOutlineMessage, to: PageRoute.CHAT_PAGE },
+  { name: "Settings", icon: FiSettings, to: PageRoute.HOME_PAGE },
 ];
 
 export const NavSize = {
@@ -138,7 +138,12 @@ const SidebarContent = ({
             />
           </Flex>
           {LinkItems.map((link) => (
-            <NavItem key={link.name} icon={link.icon} navSize={navSize}>
+            <NavItem
+              key={link.name}
+              icon={link.icon}
+              navSize={navSize}
+              to={link.to}
+            >
               {link.name}
             </NavItem>
           ))}
@@ -186,11 +191,11 @@ const SidebarContent = ({
   );
 };
 
-const NavItem = ({ icon, children, navSize, ...rest }) => {
+const NavItem = ({ icon, children, navSize, to, ...rest }) => {
   return (
     <Tooltip label={navSize === NavSize.SMALL && children} placement="right">
       <Link
-        href="#"
+        href={to}
         style={{ textDecoration: "none" }}
         _focus={{ boxShadow: "none" }}
       >

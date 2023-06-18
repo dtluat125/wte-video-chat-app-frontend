@@ -2,7 +2,6 @@ import io from "socket.io-client";
 import { BASE_URL } from "../../common/constants";
 
 const socket = io(BASE_URL); // Replace with your server URL
-console.log("run this");
 
 const socketService = {
   subscribe: (eventName, callback) => {
