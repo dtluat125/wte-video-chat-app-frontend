@@ -1,26 +1,31 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  accessChat,
-  addMembersToGroup,
-  createGroupChat,
-  getChat,
-  getConversations,
-  getUsers,
-  renameGroupChat,
-  sendMessage,
+accessChat,
+addMembersToGroup,
+createGroupChat,
+getChat,
+getConversations,
+getUsers,
+renameGroupChat,
+sendMessage,
 } from "./chat.actions";
-import socketService from "../../plugins/socket";
 
 export const ChatEvent = {
   SETUP: "SET_UP",
   MESSAGE_RECEIVED: "MESSAGE_RECEIVED",
   JOIN_CHAT: "JOIN_CHAT",
-  NEW_MESSAGE: "NEW_MESSAGE", //
+  NEW_MESSAGE: "NEW_MESSAGE",
+  TYPING: "TYPING",
+  STOP_TYPING: "STOP_TYPING",
+  ACTIVE: "ACTIVE",
+  GLOBAL_ACTIVE: "GLOBAL_ACTIVE",
+  INACTIVE: "INACTIVE",
 };
 
 const initialState = {
   loading: false,
   error: null,
+  toggleFetch: false,
   conversations: [],
   searchUsers: [],
   usersLoading: false,
@@ -65,6 +70,49 @@ const chatSlice = createSlice({
     clearSearch: (state) => {
       state.searchUsers = [];
     },
+
+    setConversationList: (state, action) => {
+      const isReorder = action.payload.isReorder;
+      const updatedList = state.conversations.map((conversation) => {
+        if (conversation._id === action.payload._id) {
+          return {
+            ...conversation,
+            latestMessage:
+              action.payload.latestMessage || conversation.latestMessage,
+            isTyping: action.payload.isTyping,
+          };
+        }
+        return conversation;
+      });
+
+      if (isReorder) {
+        const conversationId = state.conversations.findIndex(
+          (conversation) => conversation._id === action.payload._id
+        );
+
+        if (conversationId > -1) {
+          updatedList.unshift(updatedList[conversationId]);
+          updatedList.splice(conversationId + 1, 1);
+        }
+      }
+
+      state.conversations = updatedList;
+    },
+
+    setUserStatus: (state, action) => {
+      const userId = action.payload.userId;
+      const active = action.payload.active;
+
+      const updatedConversations = state.conversations.map((conversation) => {
+        if (conversation.users.find((user) => user._id === userId))
+          return {
+            ...conversation,
+            active,
+          };
+        return conversation;
+      });
+      state.conversations = updatedConversations;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getConversations.pending, (state) => {
@@ -76,10 +124,12 @@ const chatSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.conversations = action.payload?.data?.data || [];
+      state.toggleFetch = !state.toggleFetch;
     });
     builder.addCase(getConversations.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload || "Something went wrong";
+      state.toggleFetch = !state.toggleFetch;
     });
 
     builder.addCase(getUsers.pending, (state) => {
@@ -105,7 +155,6 @@ const chatSlice = createSlice({
     builder.addCase(getChat.fulfilled, (state, action) => {
       state.messages = action.payload?.data || [];
       state.messagesLoading = false;
-      socketService.emit(ChatEvent.JOIN_CHAT, state.activeConversation._id);
     });
     builder.addCase(getChat.rejected, (state, action) => {
       state.messagesError = action.payload || "Something went wrong";
@@ -121,7 +170,6 @@ const chatSlice = createSlice({
       state.sendMessageError = null;
       state.sentMessage = action.payload.data;
       state.messages.push(action.payload.data);
-      socketService.emit(ChatEvent.NEW_MESSAGE, action.payload.data);
     });
     builder.addCase(sendMessage.rejected, (state, action) => {
       state.sendMessageLoading = false;
@@ -197,7 +245,13 @@ const chatSlice = createSlice({
   },
 });
 
-export const { setActiveConversation, setMessages, addMessage, clearSearch } =
-  chatSlice.actions;
+export const {
+  setActiveConversation,
+  setMessages,
+  addMessage,
+  clearSearch,
+  setConversationList,
+  setUserStatus,
+} = chatSlice.actions;
 
 export default chatSlice.reducer;

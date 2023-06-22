@@ -1,8 +1,10 @@
 import { Box, Spinner, useToast } from "@chakra-ui/react";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { validateUser } from "../../features/auth/auth.actions";
+import { setIsSocketConnected } from "../../features/auth/auth.reducer";
+import { SocketContext } from "../../plugins/socket/SocketProvider";
 import Sidebar from "../components/Sidebar";
 
 function MainLayout({ children }) {
@@ -12,9 +14,17 @@ function MainLayout({ children }) {
   const dispatch = useDispatch();
   const toast = useToast();
   const history = useHistory();
+  const socketService = useContext(SocketContext);
+
   useEffect(() => {
-    dispatch(validateUser());
-  }, []);
+    if (!socketService) return;
+    dispatch(validateUser())
+      .unwrap()
+      .then(() => {
+        if (!socketService?.socket?.connected) socketService.connect();
+        dispatch(setIsSocketConnected(true));
+      });
+  }, [socketService]);
 
   useEffect(() => {
     if (!validateLoading && validateError && !validateSuccess) {

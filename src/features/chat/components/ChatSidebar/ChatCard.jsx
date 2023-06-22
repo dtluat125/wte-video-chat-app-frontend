@@ -1,9 +1,12 @@
-import { Avatar, AvatarBadge, HStack, Text, VStack } from "@chakra-ui/react";
+import { Avatar, AvatarBadge, Box, HStack, Text, VStack } from "@chakra-ui/react";
+import Lottie from "lottie-react";
 import moment from "moment";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setActiveConversation } from "../../chat.reducer";
+import typingAnimation from "../../../../assets/animations/typing.json";
+import { SocketContext } from "../../../../plugins/socket/SocketProvider";
 import { getChat } from "../../chat.actions";
+import { ChatEvent, setActiveConversation } from "../../chat.reducer";
 
 function ChatCard({ chat }) {
   const updatedTime = useMemo(() => {
@@ -27,13 +30,26 @@ function ChatCard({ chat }) {
     const partner = chat.users.find((user) => user.email !== userInfo.email);
     return partner?.name || userInfo.name;
   }, [chat, userInfo]);
+  const socketService = useContext(SocketContext);
   const active = () => activeConversation?._id === chat?._id;
   const dispatch = useDispatch();
   const handleClickChatCard = () => {
     if (active()) return;
     dispatch(setActiveConversation(chat));
-    dispatch(getChat({ chatId: chat._id }));
+    dispatch(getChat({ chatId: chat._id }))
+      .unwrap()
+      .then(() => {
+        socketService.emit(ChatEvent.JOIN_CHAT, chat._id);
+      });
   };
+
+  const isYou = useMemo(() => {
+    return userInfo?._id === chat.latestMessage?.sender?._id;
+  }, [userInfo, chat]);
+
+  const sender = useMemo(() => {
+    return isYou ? "You" : chat.latestMessage?.sender.name;
+  }, [isYou, chat]);
   return (
     <HStack
       w="full"
@@ -46,16 +62,33 @@ function ChatCard({ chat }) {
       onClick={handleClickChatCard}
     >
       <Avatar size="md" src={chat.image} name={chatName}>
-        <AvatarBadge boxSize="1em" bg="green.500" />
+        {chat.active && <AvatarBadge boxSize="1em" bg="green.500" />}
       </Avatar>
       <HStack flex={1}>
         <VStack align="start" flex={1} spacing={1}>
           <Text fontSize="sm" colorScheme="black" fontWeight={600}>
             {chatName}
           </Text>
-          <Text fontSize="sm" color="gray">
-            {chat.latestMessage?.content || "Send your first message"}
-          </Text>
+          <Box
+            fontSize="sm"
+            color="gray"
+            whiteSpace={"nowrap"}
+            overflow={"hidden"}
+            textOverflow={"ellipsis"}
+            w="auto"
+            maxW="150px"
+          >
+            {chat.isTyping ? (
+              <Lottie
+                width={20}
+                style={{ width: 40 }}
+                animationData={typingAnimation}
+              />
+            ) : (
+              (sender ? `${sender}: ` : "") +
+              (chat.latestMessage?.content || "Send your first message")
+            )}
+          </Box>
         </VStack>
         <VStack spacing={1}>
           <Text fontSize="sm" color="gray">

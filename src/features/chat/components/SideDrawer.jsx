@@ -3,22 +3,23 @@ import { useDisclosure } from "@chakra-ui/hooks";
 import { Input } from "@chakra-ui/input";
 import { Box } from "@chakra-ui/layout";
 import {
-Drawer,
-DrawerBody,
-DrawerContent,
-DrawerHeader,
-DrawerOverlay,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
 } from "@chakra-ui/modal";
 import { Spinner } from "@chakra-ui/spinner";
 import { Tooltip } from "@chakra-ui/tooltip";
 import { debounce } from "lodash";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { RiSearch2Line } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { accessChat, getChat, getUsers } from "../chat.actions";
-import { clearSearch } from "../chat.reducer";
+import { ChatEvent, clearSearch } from "../chat.reducer";
 import ChatLoading from "./ChatLoading";
 import UserListItem from "./User/UserListItem";
+import { SocketContext } from "../../../plugins/socket/SocketProvider";
 
 function SideDrawer() {
   const {
@@ -41,9 +42,14 @@ function SideDrawer() {
     dispatch(accessChat({ userId: value }));
   };
 
+  const socketService = useContext(SocketContext);
   useEffect(() => {
     if (!accessChatLoading && !accessChatError && accessChatResponse) {
-      dispatch(getChat({ chatId: accessChatResponse._id }));
+      dispatch(getChat({ chatId: accessChatResponse._id }))
+        .unwrap()
+        .then(() => {
+          socketService.emit(ChatEvent.JOIN_CHAT, accessChatResponse._id);
+        });
     }
   }, [accessChatLoading, accessChatError, accessChatResponse, dispatch]);
   const debouncedResults = debounce(handleSearch, 300);
