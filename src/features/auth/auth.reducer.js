@@ -10,6 +10,7 @@ const initialState = {
   validateLoading: false,
   validateSuccess: false,
   validateError: null,
+  isSocketConnected: false,
 };
 
 const authSlice = createSlice({
@@ -33,6 +34,10 @@ const authSlice = createSlice({
       state.validateSuccess = false;
       state.validateError = null;
       state.validateLoading = false;
+    },
+
+    setIsSocketConnected(state, action) {
+      state.isSocketConnected = action.payload;
     },
   },
   extraReducers: {
@@ -88,6 +93,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { logOut, clearState } = authSlice.actions;
-
+export const { logOut, clearState, setIsSocketConnected } = authSlice.actions;
+export const isSocketConnectedSelector = (state) =>
+  state.auth.isSocketConnected;
 export default authSlice.reducer;

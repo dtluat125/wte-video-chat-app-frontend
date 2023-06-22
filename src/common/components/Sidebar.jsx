@@ -19,13 +19,14 @@ import {
   useDisclosure,
   useMediaQuery,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { AiOutlineLogout, AiOutlineMessage } from "react-icons/ai";
 import { FiChevronDown, FiMenu, FiSettings } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { logOut } from "../../features/auth/auth.reducer";
 import { BASE_URL, PageRoute } from "../constants";
+import { SocketContext } from "../../plugins/socket/SocketProvider";
 
 const LinkItems = [
   { name: "Messages", icon: AiOutlineMessage, to: PageRoute.CHAT_PAGE },
@@ -88,9 +89,11 @@ const SidebarContent = ({
   };
   const history = useHistory();
   const dispatch = useDispatch();
+  const socketService = useContext(SocketContext);
   const handleSignout = () => {
     localStorage.clear();
     history.replace("/login");
+    socketService?.disconnect();
     dispatch(logOut());
   };
   const { userInfo } = useSelector((state) => state.auth);
@@ -102,6 +105,7 @@ const SidebarContent = ({
       w={{ base: "full", md: navSize === NavSize.LARGE ? "240px" : "60px" }}
       pos="fixed"
       h="full"
+      zIndex={1}
       {...rest}
     >
       <Flex h="full" direction="column" justifyContent="space-between">

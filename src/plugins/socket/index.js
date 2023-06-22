@@ -1,21 +1,34 @@
 import io from "socket.io-client";
 import { BASE_URL } from "../../common/constants";
 
-const socket = io(BASE_URL); // Replace with your server URL
+class SocketService {
+  constructor(authToken) {
+    this.authToken = authToken;
+    this.socket = null;
+  }
 
-const socketService = {
-  subscribe: (eventName, callback) => {
-    socket.on(eventName, callback);
-  },
-  emit: (eventName, data) => {
-    socket.emit(eventName, data);
-  },
-  unsubscribe: (eventName) => {
-    socket.off(eventName);
-  },
-};
+  connect() {
+    this.socket = io(BASE_URL);
 
-socketService.subscribe("connect", (socket) => {
-  console.log(socket.id); // x8WIv7-mJelg7on_ALbx
-});
-export default socketService;
+    // Add event listeners and handle socket events
+    // ...
+  }
+
+  subscribe(eventName, callback) {
+    this.socket?.on(eventName, callback);
+  }
+
+  emit(eventName, data) {
+    this.socket?.emit(eventName, data);
+  }
+
+  unsubscribe(eventName) {
+    this.socket?.off(eventName);
+  }
+
+  disconnect() {
+    this.socket?.disconnect();
+  }
+}
+
+export default SocketService;
