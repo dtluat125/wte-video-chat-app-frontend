@@ -10,7 +10,6 @@ import {
 import ChatBoxBody from "./ChatBoxBody";
 import ChatBoxHeader from "./ChatBoxHeader";
 import ChatInput from "./ChatInput";
-import { cloneDeep } from "lodash";
 import { SocketContext } from "../../../../plugins/socket/SocketProvider";
 import JoinVideoCallModal from "../VideoCall/JoinVideoCallModal";
 
@@ -45,15 +44,17 @@ function ChatBox() {
       );
 
       console.log(activeConversation);
-      if (newMessage.chat?._id === activeConversation?._id)
+      if (newMessage.chat?._id === activeConversation?._id) {
+        console.log("add message");
         dispatch(addMessage(newMessage));
+      }
     });
 
     return () => {
-      console.log("unsubscribe");
+      // console.log("unsubscribe");
       socketService.unsubscribe(ChatEvent.MESSAGE_RECEIVED);
     };
-  }, [isSocketConnected, activeConversation]);
+  }, [isSocketConnected, activeConversation, socketService]);
 
   const [inComingCall, setInComingCall] = useState(null);
 
@@ -66,25 +67,23 @@ function ChatBox() {
   useEffect(() => {
     if (!userInfo?._id || !socketService) return;
     if (!isSocketConnected) return;
-    console.log("setup", userInfo);
     socketService.emit(ChatEvent.SETUP, userInfo);
 
     socketService.subscribe(ChatEvent.ACTIVE, (userIds) => {
-      console.log(userIds);
       setActiveUsers(userIds);
     });
 
     socketService.subscribe(ChatEvent.GLOBAL_ACTIVE, (userIds) => {
-      console.log("GLOBAL_ACTIVE", userIds);
+      // console.log("GLOBAL_ACTIVE", userIds);
       setActiveUsers(userIds);
     });
 
     socketService.subscribe(ChatEvent.INACTIVE, (userId) => {
-      console.log(
-        "Someone disconnect: ",
-        userId,
-        activeUsers.filter((activeUserId) => activeUserId !== userId)
-      );
+      // console.log(
+      //   "Someone disconnect: ",
+      //   userId,
+      //   activeUsers.filter((activeUserId) => activeUserId !== userId)
+      // );
       if (!userId || userId === userInfo?._id) return;
       setActiveUsers(
         activeUsers.filter((activeUserId) => activeUserId !== userId)
@@ -110,7 +109,7 @@ function ChatBox() {
     if (!userInfo?._id || !socketService) return;
     if (!isSocketConnected) return;
     socketService.subscribe(ChatEvent.TYPING, (room, sender) => {
-      if (room === activeConversation?._id && userInfo._id !== sender?._id)
+      if (room === activeConversation?._id && userInfo?._id !== sender?._id)
         setTyping(true);
       dispatch(
         setConversationList({
@@ -120,7 +119,7 @@ function ChatBox() {
       );
     });
     socketService.subscribe(ChatEvent.STOP_TYPING, (room) => {
-      console.log(room, activeConversation?._id);
+      // console.log(room, activeConversation?._id);
       if (room === activeConversation?._id) setTyping(false);
       dispatch(
         setConversationList({
@@ -134,16 +133,15 @@ function ChatBox() {
       socketService.unsubscribe(ChatEvent.TYPING);
       socketService.unsubscribe(ChatEvent.STOP_TYPING);
     };
-  }, [userInfo, isSocketConnected, activeConversation]);
+  }, [userInfo, isSocketConnected, activeConversation, socketService]);
 
   useEffect(() => {
-    console.log(activeUsers);
     if (!loading && conversations?.length > 0) {
-      console.log(loading, cloneDeep(activeUsers));
+      // console.log(loading, cloneDeep(activeUsers));
 
       activeUsers.forEach((userId) => {
         if (!userId || userId === userInfo?._id) return;
-        console.log(userId);
+        // console.log(userId);
 
         dispatch(setUserStatus({ userId, active: true }));
       });

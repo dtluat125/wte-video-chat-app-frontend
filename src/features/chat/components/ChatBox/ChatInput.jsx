@@ -26,7 +26,6 @@ const ChatInput = ({ chat, socketConnected }) => {
     dispatch(sendMessage({ chatId: chat._id, content: message }))
       .unwrap()
       .then((response) => {
-        console.log(response);
         socketService.emit(ChatEvent.NEW_MESSAGE, response.data);
       });
     setMessage("");

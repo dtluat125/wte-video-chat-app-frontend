@@ -59,8 +59,8 @@ function ChatBoxBody({ typing }) {
           <Message chatPartner={chatPartner} isTypingMessage>
             <Lottie
               animationData={typingAnimation}
-              width={70}
-              style={{ marginBottom: 15 }}
+              width={50}
+              style={{ marginBottom: 15, width: 60 }}
             />
           </Message>
         )}

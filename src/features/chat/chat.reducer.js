@@ -172,7 +172,6 @@ const chatSlice = createSlice({
       state.sendMessageLoading = false;
       state.sendMessageError = null;
       state.sentMessage = action.payload.data;
-      state.messages.push(action.payload.data);
     });
     builder.addCase(sendMessage.rejected, (state, action) => {
       state.sendMessageLoading = false;

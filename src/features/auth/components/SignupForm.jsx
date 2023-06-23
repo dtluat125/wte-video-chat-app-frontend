@@ -91,7 +91,7 @@ export default function SignupForm() {
                 md: "sm",
               }}
             >
-              Log in to your account
+              Create your own account
             </Heading>
             <HStack spacing="1" justify="center">
               <Text color="muted">Already have an account?</Text>
