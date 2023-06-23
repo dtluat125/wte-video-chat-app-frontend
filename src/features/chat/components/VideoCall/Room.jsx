@@ -102,8 +102,8 @@ const VideoRoom = () => {
     socketRef.current = new SocketService();
     const socketService = socketRef.current;
     socketService.connect();
-    navigator.mediaDevices
-      .getUserMedia({
+    navigator?.mediaDevices
+      ?.getUserMedia({
         video: isCameraAvailable ? videoConstraints : false,
         audio: true,
       })
