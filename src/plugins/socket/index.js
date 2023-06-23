@@ -18,8 +18,8 @@ class SocketService {
     this.socket?.on(eventName, callback);
   }
 
-  emit(eventName, data) {
-    this.socket?.emit(eventName, data);
+  emit(eventName, ...data) {
+    this.socket?.emit(eventName, ...data);
   }
 
   unsubscribe(eventName) {

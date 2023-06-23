@@ -1,8 +1,9 @@
-import { Spinner, Text, VStack } from "@chakra-ui/react";
+import { Spinner, Text, VStack, useDisclosure } from "@chakra-ui/react";
 import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   ChatEvent,
+  addMessage,
   setConversationList,
   setUserStatus,
 } from "../../chat.reducer";
@@ -11,6 +12,7 @@ import ChatBoxHeader from "./ChatBoxHeader";
 import ChatInput from "./ChatInput";
 import { cloneDeep } from "lodash";
 import { SocketContext } from "../../../../plugins/socket/SocketProvider";
+import JoinVideoCallModal from "../VideoCall/JoinVideoCallModal";
 
 function ChatBox() {
   const {
@@ -28,6 +30,8 @@ function ChatBox() {
   const [activeUsers, setActiveUsers] = useState([]);
   const socketService = useContext(SocketContext);
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   useEffect(() => {
     if (!isSocketConnected) return;
     socketService?.subscribe(ChatEvent.MESSAGE_RECEIVED, (newMessage) => {
@@ -39,42 +43,31 @@ function ChatBox() {
           isReorder: true,
         })
       );
+
+      console.log(activeConversation);
+      if (newMessage.chat?._id === activeConversation?._id)
+        dispatch(addMessage(newMessage));
     });
 
     return () => {
       console.log("unsubscribe");
       socketService.unsubscribe(ChatEvent.MESSAGE_RECEIVED);
     };
-  }, [isSocketConnected]);
+  }, [isSocketConnected, activeConversation]);
+
+  const [inComingCall, setInComingCall] = useState(null);
+
+  const handleJoinCall = () => {
+    const win = window.open(`/room/${inComingCall?._id}`, "_blank");
+    win.focus();
+    onClose();
+  };
 
   useEffect(() => {
-    console.log(socketService);
     if (!userInfo?._id || !socketService) return;
     if (!isSocketConnected) return;
     console.log("setup", userInfo);
     socketService.emit(ChatEvent.SETUP, userInfo);
-    socketService.subscribe(ChatEvent.TYPING, (room) => {
-      if (room === activeConversation?._id) setTyping(true);
-      else {
-        dispatch(
-          setConversationList({
-            _id: room,
-            isTyping: true,
-          })
-        );
-      }
-    });
-    socketService.subscribe(ChatEvent.STOP_TYPING, (room) => {
-      if (room === activeConversation?._id) setTyping(false);
-      else {
-        dispatch(
-          setConversationList({
-            _id: room,
-            isTyping: false,
-          })
-        );
-      }
-    });
 
     socketService.subscribe(ChatEvent.ACTIVE, (userIds) => {
       console.log(userIds);
@@ -82,6 +75,7 @@ function ChatBox() {
     });
 
     socketService.subscribe(ChatEvent.GLOBAL_ACTIVE, (userIds) => {
+      console.log("GLOBAL_ACTIVE", userIds);
       setActiveUsers(userIds);
     });
 
@@ -98,14 +92,49 @@ function ChatBox() {
 
       dispatch(setUserStatus({ userId, active: false }));
     });
+
+    socketService.subscribe(ChatEvent.NOTIFY_CALL, (chat, sender) => {
+      if (sender?._id === userInfo?._id) return;
+      setInComingCall(chat);
+      onOpen();
+    });
     return () => {
-      socketService.unsubscribe(ChatEvent.TYPING);
-      socketService.unsubscribe(ChatEvent.STOP_TYPING);
       socketService.unsubscribe(ChatEvent.ACTIVE);
       socketService.unsubscribe(ChatEvent.GLOBAL_ACTIVE);
       socketService.unsubscribe(ChatEvent.INACTIVE);
+      socketService.unsubscribe(ChatEvent.NOTIFY_CALL);
     };
   }, [userInfo, isSocketConnected]);
+
+  useEffect(() => {
+    if (!userInfo?._id || !socketService) return;
+    if (!isSocketConnected) return;
+    socketService.subscribe(ChatEvent.TYPING, (room, sender) => {
+      if (room === activeConversation?._id && userInfo._id !== sender?._id)
+        setTyping(true);
+      dispatch(
+        setConversationList({
+          _id: room,
+          isTyping: true,
+        })
+      );
+    });
+    socketService.subscribe(ChatEvent.STOP_TYPING, (room) => {
+      console.log(room, activeConversation?._id);
+      if (room === activeConversation?._id) setTyping(false);
+      dispatch(
+        setConversationList({
+          _id: room,
+          isTyping: false,
+        })
+      );
+    });
+
+    return () => {
+      socketService.unsubscribe(ChatEvent.TYPING);
+      socketService.unsubscribe(ChatEvent.STOP_TYPING);
+    };
+  }, [userInfo, isSocketConnected, activeConversation]);
 
   useEffect(() => {
     console.log(activeUsers);
@@ -121,30 +150,41 @@ function ChatBox() {
     }
   }, [activeUsers, loading, toggleFetch]);
 
-  return activeConversation ? (
-    <VStack
-      bg="white"
-      h="100vh"
-      overflowY="auto"
-      flex={1}
-      minW="425px"
-      spacing={0}
-    >
-      <ChatBoxHeader />
-      <ChatBoxBody typing={typing} />
-      <ChatInput
-        chat={activeConversation}
-        typing={typing}
-        setTyping={setTyping}
-        socketConnected={isSocketConnected}
+  return (
+    <>
+      <JoinVideoCallModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onConfirm={handleJoinCall}
+        chat={inComingCall}
       />
-    </VStack>
-  ) : accessChatLoading ? (
-    <Spinner />
-  ) : (
-    <Text fontSize="2xl" p={4}>
-      Select a chat
-    </Text>
+
+      {activeConversation ? (
+        <VStack
+          bg="white"
+          h="100vh"
+          overflowY="auto"
+          flex={1}
+          minW="425px"
+          spacing={0}
+        >
+          <ChatBoxHeader />
+          <ChatBoxBody typing={typing} />
+          <ChatInput
+            chat={activeConversation}
+            typing={typing}
+            setTyping={setTyping}
+            socketConnected={isSocketConnected}
+          />
+        </VStack>
+      ) : accessChatLoading ? (
+        <Spinner />
+      ) : (
+        <Text fontSize="2xl" p={4}>
+          Select a chat
+        </Text>
+      )}
+    </>
   );
 }
 

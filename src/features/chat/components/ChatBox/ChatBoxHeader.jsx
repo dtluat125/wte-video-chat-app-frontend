@@ -10,14 +10,29 @@ import {
 } from "@chakra-ui/react";
 import { AiOutlinePhone, AiOutlineVideoCamera } from "react-icons/ai";
 
+import { useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { useMemo } from "react";
+import { SocketContext } from "../../../../plugins/socket/SocketProvider";
+import { ChatEvent } from "../../chat.reducer";
 import ChatBoxMenu from "./ChatBoxMenu";
 
 function ChatBoxHeader() {
   const chat = useSelector((state) => state.chat.activeConversation);
 
   const userInfo = useSelector((state) => state.auth.userInfo);
+  const activeConversation = useSelector(
+    (state) => state.chat.activeConversation
+  );
+
+  const socketService = useContext(SocketContext);
+
+  const handleInitGroupCall = () => {
+    if (!socketService?.socket || !activeConversation?._id) return;
+    socketService.emit(ChatEvent.INIT_CALL, activeConversation, userInfo);
+    // history.push(`/room/${activeConversation?._id}`);
+    const win = window.open(`/room/${activeConversation?._id}`, "_blank");
+    win.focus();
+  };
 
   const chatName = useMemo(() => {
     if (!chat || !userInfo) return "";
@@ -48,7 +63,11 @@ function ChatBoxHeader() {
             {chat?.users?.map(
               (user, index) =>
                 user && (
-                  <Avatar key={user._id || index} name={user.name} src={user.photo} />
+                  <Avatar
+                    key={user._id || index}
+                    name={user.name}
+                    src={user.photo}
+                  />
                 )
             )}
           </AvatarGroup>
@@ -65,6 +84,7 @@ function ChatBoxHeader() {
             icon={<AiOutlineVideoCamera />}
             rounded="full"
             variant="ghost"
+            onClick={handleInitGroupCall}
           ></IconButton>
           <ChatBoxMenu />
         </HStack>
