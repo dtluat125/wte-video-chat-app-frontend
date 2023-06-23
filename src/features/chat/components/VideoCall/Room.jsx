@@ -85,7 +85,7 @@ const VideoRoom = () => {
     // Check if the camera is available
     const checkCameraAvailability = async () => {
       try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
+        const mediaStream = await navigator?.mediaDevices?.getUserMedia({
           video: true,
         });
         setIsCameraAvailable(true);
