@@ -1,5 +1,5 @@
-export const API_BASE_URL = "https://13.127.104.36:3001/api/v1";
-export const BASE_URL = "https://13.127.104.36:3001";
+export const API_BASE_URL = "http://13.127.104.36:3001/api/v1";
+export const BASE_URL = "http://13.127.104.36:3001";
 export const HttpStatus = {
   OK: 200,
   BAD_REQUEST: 400,
