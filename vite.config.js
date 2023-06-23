@@ -17,4 +17,7 @@ export default defineConfig({
       "readable-stream": "vite-compatible-readable-stream",
     },
   },
+  server: {
+    host: true,
+  },
 });
