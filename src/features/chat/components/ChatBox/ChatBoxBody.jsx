@@ -4,7 +4,9 @@ import ScrollableFeed from "react-scrollable-feed";
 import Message from "./Message";
 import Lottie from "lottie-react";
 import typingAnimation from "../../../../assets/animations/typing.json";
-import { useMemo } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { SocketContext } from "../../../../plugins/socket/SocketProvider";
+import { ChatEvent } from "../../chat.reducer";
 
 function ChatBoxBody({ typing }) {
   const { messages, messagesLoading, activeConversation } = useSelector(
@@ -22,6 +24,23 @@ function ChatBoxBody({ typing }) {
     );
     return { ...(partner || {}), chatName: partner?.name || userInfo.name };
   }, [activeConversation, userInfo]);
+
+  // const socketService = useContext(SocketContext);
+  // const [typing, setTyping] = useState(false);
+  // useEffect(() => {
+  //   if (!activeConversation?._id) return;
+  //   socketService.subscribe(ChatEvent.TYPING, (room, sender) => {
+  //     console.log(room, sender)
+  //     if (room === activeConversation?._id && userInfo?._id !== sender?._id)
+  //       setTyping(true);
+  //   });
+  //   socketService.subscribe(ChatEvent.STOP_TYPING, (room) => {
+  //     if (room === activeConversation?._id) setTyping(false);
+  //   });
+  //   return () => {
+  //     socketService.unsubscribe(ChatEvent.TYPING);
+  //   };
+  // }, [activeConversation]);
 
   return !messagesLoading ? (
     <VStack

@@ -1,13 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-accessChat,
-addMembersToGroup,
-createGroupChat,
-getChat,
-getConversations,
-getUsers,
-renameGroupChat,
-sendMessage,
+  accessChat,
+  addMembersToGroup,
+  createGroupChat,
+  getChat,
+  getConversations,
+  getUsers,
+  renameGroupChat,
+  sendMessage,
 } from "./chat.actions";
 
 export const ChatEvent = {
@@ -20,6 +20,9 @@ export const ChatEvent = {
   ACTIVE: "ACTIVE",
   GLOBAL_ACTIVE: "GLOBAL_ACTIVE",
   INACTIVE: "INACTIVE",
+  INIT_CALL: "INIT_CALL",
+  NOTIFY_CALL: "NOTIFY_CALL",
+  END_CALL: "END_CALL",
 };
 
 const initialState = {

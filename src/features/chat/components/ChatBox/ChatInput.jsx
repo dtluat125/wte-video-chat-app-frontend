@@ -10,7 +10,7 @@ import {
 import { useContext, useEffect, useRef, useState } from "react";
 import { BiMicrophone } from "react-icons/bi";
 import { BsCardImage, BsFillSendFill } from "react-icons/bs";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { sendMessage } from "../../chat.actions";
 import { ChatEvent } from "../../chat.reducer";
 import { SocketContext } from "../../../../plugins/socket/SocketProvider";
@@ -21,11 +21,12 @@ const ChatInput = ({ chat, socketConnected }) => {
   const [message, setMessage] = useState("");
   const [ownerTyping, setOwnerTyping] = useState(false);
   const dispatch = useDispatch();
+  const userInfo = useSelector((state) => state.auth.userInfo);
   const sendMessageAction = () => {
     dispatch(sendMessage({ chatId: chat._id, content: message }))
       .unwrap()
       .then((response) => {
-        console.log(response)
+        console.log(response);
         socketService.emit(ChatEvent.NEW_MESSAGE, response.data);
       });
     setMessage("");
@@ -51,7 +52,8 @@ const ChatInput = ({ chat, socketConnected }) => {
   useEffect(() => {
     if (!socketConnected) return;
     if (ownerTyping) {
-      socketService.emit(ChatEvent.TYPING, chat);
+      console.log(userInfo);
+      socketService.emit(ChatEvent.TYPING, chat, userInfo);
     } else {
       socketService.emit(ChatEvent.STOP_TYPING, chat);
     }
