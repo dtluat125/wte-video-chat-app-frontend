@@ -27,10 +27,10 @@ import { useHistory } from "react-router-dom";
 import { logOut } from "../../features/auth/auth.reducer";
 import { BASE_URL, PageRoute } from "../constants";
 import { SocketContext } from "../../plugins/socket/SocketProvider";
-
 const LinkItems = [
   { name: "Messages", icon: AiOutlineMessage, to: PageRoute.CHAT_PAGE },
   { name: "Settings", icon: FiSettings, to: PageRoute.HOME_PAGE },
+  { name: "Update Info", icon: FiSettings, to: PageRoute.UPDATE_INFO_PAGE },
 ];
 
 export const NavSize = {
@@ -199,7 +199,7 @@ const NavItem = ({ icon, children, navSize, to, ...rest }) => {
   return (
     <Tooltip label={navSize === NavSize.SMALL && children} placement="right">
       <Link
-        href={to}
+        to={to}
         style={{ textDecoration: "none" }}
         _focus={{ boxShadow: "none" }}
       >

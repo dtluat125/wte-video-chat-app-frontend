@@ -79,3 +79,35 @@ export const validateUser = createAsyncThunk(
     }
   }
 );
+
+export const updateUser = createAsyncThunk(
+  "auth/update",
+  async ({ userId, updatedData }, { rejectWithValue }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      const response = await axiosInstance.put(
+        `users/${userId}`,
+        updatedData,
+        config
+      );
+
+      if (response.success) {
+        return response;
+      }
+
+      return rejectWithValue(response.message);
+    } catch (error) {
+      // return custom error message from backend if present
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);

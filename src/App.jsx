@@ -7,7 +7,7 @@ import SignupPage from "./pages/singup/SignupPage";
 import { PageRoute } from "./common/constants";
 import Room from "./features/chat/components/VideoCall/Room";
 import CreateRoom from "./features/chat/components/VideoCall/CreateRoom";
-
+import UpdateInfoPage from './pages/update_user/UpdateInfoPage';
 function App() {
   return (
     <div className="app">
@@ -23,6 +23,9 @@ function App() {
         </Route>
         <Route exact path={PageRoute.SIGNUP_PAGE}>
           <SignupPage />
+        </Route>
+        <Route exact path={PageRoute.UPDATE_USER_PAGE}>
+          <UpdateInfoPage />
         </Route>
         <Route exact path={"/create-room"}>
           <CreateRoom />

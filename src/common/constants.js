@@ -27,4 +27,5 @@ export const PageRoute = {
   LOGIN_PAGE: "/login",
   SIGNUP_PAGE: "/signup",
   CHAT_PAGE: "/chat",
+  UPDATE_INFO_PAGE: "/update-info",
 };
