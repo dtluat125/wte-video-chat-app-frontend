@@ -27,10 +27,9 @@ import { useHistory } from "react-router-dom";
 import { logOut } from "../../features/auth/auth.reducer";
 import { BASE_URL, PageRoute } from "../constants";
 import { SocketContext } from "../../plugins/socket/SocketProvider";
-
 const LinkItems = [
   { name: "Messages", icon: AiOutlineMessage, to: PageRoute.CHAT_PAGE },
-  { name: "Settings", icon: FiSettings, to: PageRoute.HOME_PAGE },
+  { name: "Settings", icon: FiSettings, to: PageRoute.HOME_UPDATE_INFO_PAGE },
 ];
 
 export const NavSize = {
